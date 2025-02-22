@@ -11,8 +11,8 @@ class Fotousuario extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
       Container(
-      width: 60, // Tamaño ajustado del avatar
-      height: 60, // Tamaño ajustado del avatar
+      width: 60,
+      height: 60,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
         border: Border.all(width: 1, color: Colors.purple),

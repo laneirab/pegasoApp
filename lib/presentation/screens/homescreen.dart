@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/fotoUsuario.dart';
+import '../widgets/header.dart';
+
 class Home extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -23,57 +24,26 @@ class _HomePageState extends State<Home> {
           padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
           child: Column(
             children: [
-              SizedBox(
-                height: 15,
+              HeaderWidget(
+                title: "¡Ten un lindo día!",
+                imageUrl: "https://i.pinimg.com/736x/b1/a6/1e/b1a61e29eaa57410058f1d671931f7a4.jpg",
+                subtitle: "Hola"
               ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Hola",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w200,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 0,
-                      ),
-                      Text(
-                        "¡Ten un lindo día!",
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.purple,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  Fotousuario(
-                    imageUrl: "https://i.pinimg.com/736x/b1/a6/1e/b1a61e29eaa57410058f1d671931f7a4.jpg",
-                  ),
-                ],
-              )
             ],
           ),
         ),
         Positioned(
-          top: 185,
+          top: 200,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 15),
-            height: MediaQuery.of(context).size.height - 245,
+            height: MediaQuery.of(context).size.height - 230,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
               color: Color(0xFFD3AAFB),
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(30),
+                topLeft: Radius.circular(30)
+              ),
             ),
             child: ListView(
               children: [

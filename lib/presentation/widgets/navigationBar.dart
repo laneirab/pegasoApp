@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../screens/home.dart';
-import '../screens/calendar.dart';
-import '../screens/subjects.dart';
+import '../screens/homescreen.dart';
+import '../screens/calendarscreen.dart';
+import '../screens/subjectsScreen.dart';
 
 class CustomNavigationBar extends StatefulWidget {
   @override

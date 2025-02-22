@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import '../presentation/screens/home.dart';
-import '../presentation/screens/calendar.dart';
-import '../presentation/screens/subjects.dart';
 import '../presentation/widgets/navigationBar.dart';
 
 void main() {
