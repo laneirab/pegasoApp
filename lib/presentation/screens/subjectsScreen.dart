@@ -75,7 +75,7 @@ class _SubjectsState extends State<Subjects> {
             child: Column(
               children: [
                 HeaderWidget(
-                  title: "2024-2",
+                  title: "Tus materias",
                   imageUrl:
                   "https://i.pinimg.com/736x/b1/a6/1e/b1a61e29eaa57410058f1d671931f7a4.jpg",
                 ),

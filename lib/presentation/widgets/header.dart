@@ -35,13 +35,13 @@ class HeaderWidget extends StatelessWidget {
                   color: Colors.purple,
                 ),
                 softWrap: true,
-                overflow: TextOverflow.ellipsis, // Para evitar que se desborde
-                maxLines: 2, // Puedes ajustar el número de líneas permitidas
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
               ),
             ],
           ),
         ),
-        Fotousuario(imageUrl: imageUrl), // Imagen a la derecha
+        Fotousuario(imageUrl: imageUrl),
       ],
     );
   }
