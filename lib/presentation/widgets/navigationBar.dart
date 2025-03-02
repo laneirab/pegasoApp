@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import '../screens/homescreen.dart';
-import '../screens/calendarscreen.dart';
-import '../screens/subjectsScreen.dart';
+import '../screens/screens.dart';
 
 class CustomNavigationBar extends StatefulWidget {
   @override
-  _NavigationBarState createState() => _NavigationBarState();
+  _CustomNavigationBarState createState() => _CustomNavigationBarState();
 }
 
-class _NavigationBarState extends State<CustomNavigationBar> {
+class _CustomNavigationBarState extends State<CustomNavigationBar> {
   int _selectedIndex = 0;
 
   static List<Widget> _widgetOptions = <Widget>[
@@ -26,28 +24,38 @@ class _NavigationBarState extends State<CustomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
+      body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Inicio',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Calendario',
+            icon: Icon(Icons.calendar_today),
+            label: 'Calendar',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Materias',
+            icon: Icon(Icons.subject),
+            label: 'Subjects',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.grey[800],
+        selectedItemColor: Colors.amber[800],
         onTap: _onItemTapped,
       ),
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AsignaturasScreen()),
+                );
+              },
+              child: Icon(Icons.edit),
+              tooltip: 'Editar Horario',
+            )
+          : null,
     );
   }
 }

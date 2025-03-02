@@ -1,0 +1,2 @@
+C:/Users/Jairo_Eloy/Desktop/Trabajos_sebastian/pegasoApp/android/app/.cxx/Debug/7141275p/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Jairo_Eloy/Desktop/Trabajos_sebastian/pegasoApp/android/app/.cxx/Debug/7141275p/x86_64/CMakeFiles/rebuild_cache.dir
