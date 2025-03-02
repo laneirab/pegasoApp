@@ -11,24 +11,28 @@ class Subjects extends StatefulWidget {
 class _SubjectsState extends State<Subjects> {
   List<Map<String, dynamic>> subjects = [
     {
+      "id": 1,  // Nuevo identificador único
       "name": "Ecuaciones Diferenciales",
       "professor": "Carlos Vélez",
       "progress": 0.0,
       "grade": 0.0,
     },
     {
+      "id": 2,
       "name": "Cátedra APUN",
       "professor": "Miguel Ángel Sierra",
       "progress": 0.0,
       "grade": 0.0
     },
     {
+      "id": 3,
       "name": "Fundamentos de Economía",
       "professor": "Óscar Manrique",
       "progress": 0.0,
       "grade": 0.0
     },
     {
+      "id": 4,
       "name": "Estadística II",
       "professor": "Jonathan Cardona",
       "progress": 0.0,
@@ -36,7 +40,6 @@ class _SubjectsState extends State<Subjects> {
     },
   ];
 
-  // Función para actualizar los datos cuando se vuelve de Notasmateria
   void actualizarMateria(int index, double nuevoProgreso, double nuevaNota) {
     setState(() {
       subjects[index]["progress"] = nuevoProgreso;

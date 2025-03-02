@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class FloatingActionButtonWidget extends StatelessWidget {
   final VoidCallback onPressed;
-
   FloatingActionButtonWidget({required this.onPressed});
 
   @override

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import '../presentation/widgets/navigationBar.dart';
+import '/infrastructure/datasources/grade_datasource.dart';
+import '/presentation/widgets/navigationBar.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await GradeDataSource.initialize();
   runApp(MyApp());
 }
 

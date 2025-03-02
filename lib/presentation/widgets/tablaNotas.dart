@@ -4,11 +4,13 @@ class GradesTableWidget extends StatelessWidget {
   final List<Map<String, dynamic>> grades;
   final Function(int) onDelete;
   final Function(int, String, double, int) onEdit;
+  final double acumulado;
 
   GradesTableWidget({
     required this.grades,
     required this.onDelete,
     required this.onEdit,
+    required this.acumulado,
   });
 
   @override
@@ -23,9 +25,8 @@ class GradesTableWidget extends StatelessWidget {
       },
       children: [
         _buildTableRow(["Detalles", "Nota", "%", "Total"], isHeader: true),
-        ...grades.asMap().entries.map((entry) {
-          int index = entry.key;
-          var grade = entry.value;
+        ...grades.map((grade) {
+          int id = grade['id'];
           return _buildTableRow(
             [
               grade["title"] ?? '',
@@ -33,30 +34,23 @@ class GradesTableWidget extends StatelessWidget {
               grade["percentage"].toString(),
               (grade["grade"] * grade["percentage"] / 100).toStringAsFixed(2)
             ],
-            index: index,
+            id: id,
             context: context,
           );
         }).toList(),
-        _buildTableRow(["Acumulado", "0.0", "00", "0.0"], isHighlight: true),
+        _buildTableRow(["Acumulado", "", "", acumulado.toStringAsFixed(2)], isHighlight: true),
       ],
     );
   }
 
-  TableRow _buildTableRow(List<String> cells,
-      {bool isHeader = false, bool isHighlight = false, int? index, BuildContext? context}) {
+  TableRow _buildTableRow(List<String> cells, {bool isHeader = false, bool isHighlight = false, int? id, BuildContext? context}) {
     return TableRow(
       decoration: BoxDecoration(
-        color: isHeader
-            ? Colors.purple
-            : isHighlight
-            ? Colors.purple[800]
-            : Colors.transparent,
+        color: isHeader ? Colors.purple : isHighlight ? Colors.purple[800] : Colors.transparent,
       ),
       children: cells.map((cell) {
         return GestureDetector(
-          onLongPress: index != null && context != null
-              ? () => _showEditDeleteDialog(context, index)
-              : null,
+          onLongPress: id != null && context != null ? () => _showEditDeleteDialog(context, id) : null,
           child: Padding(
             padding: EdgeInsets.all(8),
             child: Text(
@@ -75,14 +69,15 @@ class GradesTableWidget extends StatelessWidget {
     );
   }
 
-  void _showEditDeleteDialog(BuildContext context, int index) {
+  void _showEditDeleteDialog(BuildContext context, int id) {
+    final grade = grades.firstWhere((g) => g['id'] == id);
+    final titleController = TextEditingController(text: grade["title"] ?? '');
+    final gradeController = TextEditingController(text: (grade["grade"] ?? 0.0).toString());
+    final percentController = TextEditingController(text: (grade["percentage"] ?? 0).toString());
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        final titleController = TextEditingController(text: grades[index]["title"] ?? '');
-        final gradeController = TextEditingController(text: (grades[index]["grade"] ?? 0.0).toString());
-        final percentController = TextEditingController(text: (grades[index]["percentage"] ?? 0).toString());
-
         return AlertDialog(
           title: Text('Editar/Eliminar Nota'),
           content: Column(
@@ -112,9 +107,9 @@ class GradesTableWidget extends StatelessWidget {
             TextButton(
               onPressed: () {
                 onEdit(
-                  index,
+                  id,
                   titleController.text,
-                  double.tryParse(gradeController.text) ?? 0.0,
+                    double.tryParse(gradeController.text.replaceAll(',', '.')) ?? 0.0,
                   int.tryParse(percentController.text) ?? 0,
                 );
                 Navigator.of(context).pop();
@@ -123,7 +118,7 @@ class GradesTableWidget extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                onDelete(index);
+                onDelete(id);
                 Navigator.of(context).pop();
               },
               child: Text('ELIMINAR'),

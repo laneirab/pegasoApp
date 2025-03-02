@@ -14,6 +14,25 @@ class _AddNoteFormState extends State<AddNoteForm> {
   final _gradeController = TextEditingController();
   final _percentController = TextEditingController();
 
+  void _validateAndSave() {
+    final title = _titleController.text.isEmpty ? " " : _titleController.text;
+    final gradeText = _gradeController.text.replaceAll(',', '.');
+    final grade = double.tryParse(gradeText);
+
+    final percent = int.tryParse(_percentController.text);
+
+    if (title.isEmpty || grade == null || grade < 0 || grade > 5 ||
+        percent == null || percent < 0 || percent > 100) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Datos inválidos. Nota: 0-5, Porcentaje: 0-100.")),
+      );
+      return;
+    }
+
+    widget.onAddNote(title, grade, percent);
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -21,37 +40,14 @@ class _AddNoteFormState extends State<AddNoteForm> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
-            controller: _titleController,
-            decoration: InputDecoration(labelText: 'Título'),
-          ),
-          TextField(
-            controller: _gradeController,
-            decoration: InputDecoration(labelText: 'Nota'),
-            keyboardType: TextInputType.number,
-          ),
-          TextField(
-            controller: _percentController,
-            decoration: InputDecoration(labelText: 'Porcentaje (%)'),
-            keyboardType: TextInputType.number,
-          ),
+          TextField(controller: _titleController, decoration: InputDecoration(labelText: 'Título')),
+          TextField(controller: _gradeController, decoration: InputDecoration(labelText: 'Nota'), keyboardType: TextInputType.number),
+          TextField(controller: _percentController, decoration: InputDecoration(labelText: 'Porcentaje (%)'), keyboardType: TextInputType.number),
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('CANCELAR'),
-        ),
-        TextButton(
-          onPressed: () {
-            final title = _titleController.text;
-            final grade = double.tryParse(_gradeController.text) ?? 0.0;
-            final percent = int.tryParse(_percentController.text) ?? 0;
-            widget.onAddNote(title, grade, percent);
-            Navigator.of(context).pop();
-          },
-          child: Text('GUARDAR'),
-        ),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('CANCELAR')),
+        TextButton(onPressed: _validateAndSave, child: Text('GUARDAR')),
       ],
     );
   }
