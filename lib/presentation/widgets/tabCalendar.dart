@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/subjectsCalendar.dart';
-import '../widgets/botonAdd.dart';
+import 'clasesTab.dart';
+import 'pendientesTab.dart';
 
 class TabSection extends StatefulWidget {
   @override
@@ -9,13 +9,34 @@ class TabSection extends StatefulWidget {
 
 class _TabSectionState extends State<TabSection> {
   int selectedTab = 0;
+  List<Map<String, String>> pendientes = [
+    {
+      'materia': 'Tarea de Álgebra',
+      'hora': '8:00 PM',
+      'ubicacion': 'Plataforma Virtual',
+    },
+    {
+      'materia': 'Proyecto de Programación',
+      'hora': '11:59 PM',
+      'ubicacion': 'GitHub',
+    },
+  ];
+
+  void _addPendiente(String materia, String hora, String ubicacion) {
+    setState(() {
+      pendientes.add({
+        'materia': materia,
+        'hora': hora,
+        'ubicacion': ubicacion,
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Column(
         children: [
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -23,45 +44,14 @@ class _TabSectionState extends State<TabSection> {
               buildTab(1, "Pendientes"),
             ],
           ),
-
           Expanded(
             child: IndexedStack(
               index: selectedTab,
               children: [
-                /// Contenido de la pestaña "Clases"
-                SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      MateriaContainer(
-                        materia: 'Ecuaciones Diferenciales',
-                        hora: '06:00 AM',
-                        ubicacion: 'AULA TIPO AUDITORIO. 12-101. BLOQUE 12',
-                      ),
-                      MateriaContainer(
-                        materia: 'Fundamentos de Economía',
-                        hora: '10:00 AM',
-                        ubicacion: 'AULA. 46-307. BLOQUE 46. SALON.',
-                      ),
-                    ],
-                  ),
-                ),
-
-                /// Contenido de la pestaña "Pendientes"
-                SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      MateriaContainer(
-                        materia: 'Tarea de Álgebra',
-                        hora: '8:00 PM',
-                        ubicacion: 'Plataforma Virtual',
-                      ),
-                      MateriaContainer(
-                        materia: 'Proyecto de Programación',
-                        hora: '11:59 PM',
-                        ubicacion: 'GitHub',
-                      ),
-                    ],
-                  ),
+                ClasesTab(),
+                PendientesTab(
+                  pendientes: pendientes,
+                  onAddPendiente: _addPendiente,
                 ),
               ],
             ),
