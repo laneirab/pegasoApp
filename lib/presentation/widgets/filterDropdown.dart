@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 class FilterDropdown extends StatelessWidget {
   final String hint;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
 
-  FilterDropdown({required this.hint});
+  FilterDropdown({required this.hint, required this.items, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -14,12 +16,18 @@ class FilterDropdown extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey.shade300)
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(hint, style: TextStyle(color: Colors.grey)),
-          Icon(Icons.arrow_drop_down, color: Colors.grey)
-        ],
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          hint: Text(hint, style: TextStyle(color: Colors.grey)),
+          icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+          items: items.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
       ),
       height: 40,
     );

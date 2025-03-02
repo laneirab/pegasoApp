@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/widgets.dart';
 import '../../models/models.dart';
+import '../../data/database.dart';
+
 
 class AsignaturasScreen extends StatefulWidget {
   @override
@@ -11,76 +13,46 @@ class _AsignaturasScreenState extends State<AsignaturasScreen> {
   // Lista para mantener las asignaturas seleccionadas
   final List<Asignatura> _selectedSubjects = [];
   
-  // Lista de ejemplo de asignaturas disponibles
-  final List<Asignatura> _availableSubjects = [
-    Asignatura(
-      id: '3010319',
-      nombre: 'Construcción I',
-      creditos: 3,
-      planEstudios: ['3501 ARQUITECTURA', '3503 CONSTRUCCIÓN'],
-      tipologia: 'DISCIPLINAR OPTATIVA',
-      facultad: '3064 FACULTAD DE ARQUITECTURA',
-      grupos: [
-        Grupo(
-          nombreProfesor: 'ANDRES FERNANDO URREGO HIGUITA.',
-          numGrupo: '(1) Grupo 1',
-          cupos: 0,
-          horarios: [
-            Horario(hora: 'LUNES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-411. BLOQUE 24. SALON.'),
-            Horario(hora: 'MIÉRCOLES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-411. BLOQUE 24. SALON.'),
-          ],
-        ),
-        Grupo(
-          nombreProfesor: 'JAIRO URREGO HIGUITA.',
-          numGrupo: '(2) Grupo 2',
-          cupos: 0,
-          horarios: [
-            Horario(hora: 'MARTES de 06:00 a 12:00.', aula: 'AULA ESPECIAL. 24-411. BLOQUE 24. SALON.'),
-            Horario(hora: 'JUEVES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-411. BLOQUE 24. SALON.'),
-          ],
-        ),
-      ],
-    ),
-    Asignatura(
-      id: '3010283',
-      nombre: 'Construcción II',
-      creditos: 3,
-      planEstudios: ['3501 ARQUITECTURA', '3503 CONSTRUCCIÓN'],
-      tipologia: 'DISCIPLINAR OPTATIVA',
-      facultad: '3064 FACULTAD DE ARQUITECTURA',
-      grupos: [
-        Grupo(
-          nombreProfesor: 'Edison Aldemar Hincapie Atehortua.',
-          numGrupo: '(1) Grupo 1',
-          cupos: 2,
-          horarios: [
-            Horario(hora: 'MARTES de 10:00 a 12:00.', aula: 'AULA DE DIBUJO. 24-203. BLOQUE 24. SALON.'),
-            Horario(hora: 'JUEVES de 10:00 a 12:00.', aula: 'AULA ESPECIAL. 24-406. BLOQUE 24. SALON.'),
-          ],
-        ),
-      ],
-    ),
-    Asignatura(
-      id: '3006719',
-      nombre: 'Construcción III',
-      creditos: 3,
-      planEstudios: ['3501 ARQUITECTURA', '3503 CONSTRUCCIÓN'],
-      tipologia: 'DISCIPLINAR OPTATIVA',
-      facultad: '3064 FACULTAD DE ARQUITECTURA',
-      grupos: [
-        Grupo(
-          nombreProfesor: 'John Jairo Agudelo .',
-          numGrupo: '(1) Grupo 1',
-          cupos: 2,
-          horarios: [
-            Horario(hora: 'MIÉRCOLES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-403. BLOQUE 24. SALON.'),
-            Horario(hora: 'VIERNES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-403. BLOQUE 24. SALON.'),
-          ],
-        ),
-      ],
-    ),
-  ];
-  
+  // Lista de asignaturas disponibles
+  List<Asignatura> _availableSubjects = [];
+  List<String> _facultades = [];
+  List<String> _planesEstudio = [];
+  List<String> _tipologias = [];
+  String _searchQuery = '';
+  String? _selectedFacultad;
+  String? _selectedPlanEstudio;
+  String? _selectedTipologia;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeDatabase();
+  }
+
+  Future<void> _initializeDatabase() async {
+    await DatabaseService.connect();
+    _loadAsignaturas();
+    _loadDistinctValues();
+  }
+
+  Future<void> _loadAsignaturas() async {
+    final asignaturas = await DatabaseService.getAsignaturas();
+    setState(() {
+      _availableSubjects = asignaturas;
+    });
+  }
+
+  Future<void> _loadDistinctValues() async {
+    final facultades = await DatabaseService.getDistinctValues('facultad');
+    final planesEstudio = await DatabaseService.getDistinctValues('planEstudios');
+    final tipologias = await DatabaseService.getDistinctValues('tipologia');
+    setState(() {
+      _facultades = facultades;
+      _planesEstudio = planesEstudio;
+      _tipologias = tipologias;
+    });
+  }
+
   void _addSubject(Asignatura asignatura) {
     setState(() {
       if (!_selectedSubjects.any((subject) => subject.id == asignatura.id)) {
@@ -119,6 +91,19 @@ class _AsignaturasScreenState extends State<AsignaturasScreen> {
           }).toList(),
         );
       }
+    });
+  }
+
+  void _filterAsignaturas() {
+    setState(() {
+      _availableSubjects = _availableSubjects.where((asignatura) {
+        final query = _searchQuery.toLowerCase();
+        final matchesQuery = asignatura.nombre.toLowerCase().contains(query) || asignatura.id.toLowerCase().contains(query);
+        final matchesFacultad = _selectedFacultad == null || asignatura.facultad == _selectedFacultad;
+        final matchesPlanEstudio = _selectedPlanEstudio == null || asignatura.planEstudios.contains(_selectedPlanEstudio);
+        final matchesTipologia = _selectedTipologia == null || asignatura.tipologia == _selectedTipologia;
+        return matchesQuery && matchesFacultad && matchesPlanEstudio && matchesTipologia;
+      }).toList();
     });
   }
 
@@ -163,11 +148,48 @@ class _AsignaturasScreenState extends State<AsignaturasScreen> {
               child: ListView(
                 children: [
                   SizedBox(height: 15),
-                  FilterDropdown(hint: "Seleccionar Facultad"),
+                  FilterDropdown(
+                    hint: "Seleccionar Facultad",
+                    items: _facultades,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedFacultad = value;
+                      });
+                      _filterAsignaturas();
+                    },
+                  ),
                   SizedBox(height: 10),
-                  FilterDropdown(hint: "Seleccionar Plan de Estudios"),
+                  FilterDropdown(
+                    hint: "Seleccionar Plan de Estudios",
+                    items: _planesEstudio,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPlanEstudio = value;
+                      });
+                      _filterAsignaturas();
+                    },
+                  ),
                   SizedBox(height: 10),
-                  FilterTextField(hint: "Tipología"),
+                  FilterDropdown(
+                    hint: "Tipología",
+                    items: _tipologias,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedTipologia = value;
+                      });
+                      _filterAsignaturas();
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  FilterTextField(
+                    hint: "Buscar por nombre o código",
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                      _filterAsignaturas();
+                    },
+                  ),
                   SizedBox(height: 10),
                   SearchButton(),
                   SizedBox(height: 20),

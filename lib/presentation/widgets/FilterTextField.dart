@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class FilterTextField extends StatelessWidget {
   final String hint;
+  final ValueChanged<String> onChanged;
 
-  FilterTextField({required this.hint});
+  FilterTextField({required this.hint, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +21,7 @@ class FilterTextField extends StatelessWidget {
           hintText: hint,
           hintStyle: TextStyle(color: Colors.grey),
         ),
+        onChanged: onChanged,
       ),
       height: 40,
     );
