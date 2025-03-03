@@ -4,6 +4,10 @@ import '../widgets/tabCalendar.dart';
 import '../widgets/fotoUsuario.dart';
 
 class Calendar extends StatefulWidget {
+  // Agregamos un valor por defecto para evitar que sea null
+  final int initialTab;
+  const Calendar({this.initialTab = 0, Key? key}) : super(key: key);
+
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
@@ -34,7 +38,8 @@ class _CalendarPageState extends State<Calendar> {
               ),
               child: Column(
                 children: [
-                  TabSection(),
+                  // Pasamos el valor de initialTab a TabSection
+                  TabSection(initialTab: widget.initialTab),
                 ],
               ),
             ),

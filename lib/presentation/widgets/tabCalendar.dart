@@ -3,21 +3,26 @@ import 'clasesTab.dart';
 import 'pendientesTab.dart';
 
 class TabSection extends StatefulWidget {
+  // También un valor por defecto aquí
+  final int initialTab;
+  const TabSection({this.initialTab = 0, Key? key}) : super(key: key);
+
   @override
   _TabSectionState createState() => _TabSectionState();
 }
 
 class _TabSectionState extends State<TabSection> {
-  int selectedTab = 0;
+  late int selectedTab;
+
   List<Map<String, String>> pendientes = [
     {
       'materia': 'Tarea de Álgebra',
-      'hora': '8:00 PM',
+      'hora': 'PM 12:00', // Formato de 24 horas
       'ubicacion': 'Plataforma Virtual',
     },
     {
       'materia': 'Proyecto de Programación',
-      'hora': '11:59 PM',
+      'hora': 'AM 5:00', // Formato de 24 horas
       'ubicacion': 'GitHub',
     },
   ];
@@ -33,10 +38,18 @@ class _TabSectionState extends State<TabSection> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Tomamos el valor que viene de Calendar
+    selectedTab = widget.initialTab;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Column(
         children: [
+          // Barra de pestañas
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -44,6 +57,7 @@ class _TabSectionState extends State<TabSection> {
               buildTab(1, "Pendientes"),
             ],
           ),
+          // Contenido de cada pestaña
           Expanded(
             child: IndexedStack(
               index: selectedTab,
