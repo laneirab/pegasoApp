@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Asegúrate de tener este paquete en tu pubspec.yaml
 import '../widgets/subjectsCalendar.dart';
 
 class PendientesTab extends StatelessWidget {
@@ -17,7 +18,7 @@ class PendientesTab extends StatelessWidget {
               children: pendientes.map((pendiente) {
                 return MateriaContainer(
                   materia: pendiente['materia']!,
-                  hora: pendiente['hora']!,
+                  hora: pendiente['hora']!.split(' ')[1], // Solo muestra la hora
                   ubicacion: pendiente['ubicacion']!,
                 );
               }).toList(),
@@ -37,6 +38,7 @@ class PendientesTab extends StatelessWidget {
 
   void _showAddPendienteDialog(BuildContext context) {
     final materiaController = TextEditingController();
+    final fechaController = TextEditingController();
     final horaController = TextEditingController();
     final ubicacionController = TextEditingController();
 
@@ -52,9 +54,55 @@ class PendientesTab extends StatelessWidget {
                 controller: materiaController,
                 decoration: InputDecoration(labelText: 'Materia'),
               ),
-              TextField(
-                controller: horaController,
-                decoration: InputDecoration(labelText: 'Hora'),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: fechaController,
+                      decoration: InputDecoration(labelText: 'Fecha'),
+                      readOnly: true,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.calendar_today),
+                    onPressed: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
+                      );
+                      if (pickedDate != null) {
+                        String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                        fechaController.text = formattedDate;
+                      }
+                    },
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: horaController,
+                      decoration: InputDecoration(labelText: 'Hora'),
+                      readOnly: true,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.access_time),
+                    onPressed: () async {
+                      TimeOfDay? pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+                      if (pickedTime != null) {
+                        String formattedTime = pickedTime.format(context);
+                        horaController.text = formattedTime;
+                      }
+                    },
+                  ),
+                ],
               ),
               TextField(
                 controller: ubicacionController,
@@ -71,7 +119,7 @@ class PendientesTab extends StatelessWidget {
               onPressed: () {
                 onAddPendiente(
                   materiaController.text,
-                  horaController.text,
+                  '${fechaController.text} ${horaController.text}',
                   ubicacionController.text,
                 );
                 Navigator.of(context).pop();
