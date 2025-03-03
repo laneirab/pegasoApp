@@ -1,13 +1,13 @@
 import 'grupo.dart';
 
 class Asignatura {
-  final String id;
-  final String nombre;
-  final int creditos;
-  final List<String> planEstudios;
-  final String tipologia;
-  final String facultad;
-  final List<Grupo> grupos;
+  String id;
+  String nombre;
+  int creditos;
+  List<String> planEstudios;
+  String tipologia;
+  String facultad;
+  List<Grupo> grupos;
 
   Asignatura({
     required this.id,
@@ -20,9 +20,6 @@ class Asignatura {
   });
 
   factory Asignatura.fromJson(Map<String, dynamic> json) {
-    var list = json['grupos'] as List;
-    List<Grupo> gruposList = list.map((i) => Grupo.fromJson(i)).toList();
-
     return Asignatura(
       id: json['_id'],
       nombre: json['nombre'],
@@ -30,7 +27,7 @@ class Asignatura {
       planEstudios: List<String>.from(json['planEstudios']),
       tipologia: json['tipologia'],
       facultad: json['facultad'],
-      grupos: gruposList,
+      grupos: List<Grupo>.from(json['grupos'].map((x) => Grupo.fromJson(x))),
     );
   }
 }

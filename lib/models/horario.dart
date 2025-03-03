@@ -1,6 +1,6 @@
 class Horario {
-  final String hora;
-  final String aula;
+  String hora;
+  String? aula;
 
   Horario({
     required this.hora,

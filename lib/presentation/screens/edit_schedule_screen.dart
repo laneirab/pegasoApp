@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/widgets.dart';
 import '../../models/models.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 
 class AsignaturasScreen extends StatefulWidget {
   @override
@@ -8,79 +10,77 @@ class AsignaturasScreen extends StatefulWidget {
 }
 
 class _AsignaturasScreenState extends State<AsignaturasScreen> {
-  // Lista para mantener las asignaturas seleccionadas
   final List<Asignatura> _selectedSubjects = [];
-  
-  // Lista de ejemplo de asignaturas disponibles
-  final List<Asignatura> _availableSubjects = [
-    Asignatura(
-      id: '3010319',
-      nombre: 'Construcción I',
-      creditos: 3,
-      planEstudios: ['3501 ARQUITECTURA', '3503 CONSTRUCCIÓN'],
-      tipologia: 'DISCIPLINAR OPTATIVA',
-      facultad: '3064 FACULTAD DE ARQUITECTURA',
-      grupos: [
-        Grupo(
-          nombreProfesor: 'ANDRES FERNANDO URREGO HIGUITA.',
-          numGrupo: '(1) Grupo 1',
-          cupos: 0,
-          horarios: [
-            Horario(hora: 'LUNES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-411. BLOQUE 24. SALON.'),
-            Horario(hora: 'MIÉRCOLES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-411. BLOQUE 24. SALON.'),
-          ],
-        ),
-        Grupo(
-          nombreProfesor: 'JAIRO URREGO HIGUITA.',
-          numGrupo: '(2) Grupo 2',
-          cupos: 0,
-          horarios: [
-            Horario(hora: 'MARTES de 06:00 a 12:00.', aula: 'AULA ESPECIAL. 24-411. BLOQUE 24. SALON.'),
-            Horario(hora: 'JUEVES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-411. BLOQUE 24. SALON.'),
-          ],
-        ),
-      ],
-    ),
-    Asignatura(
-      id: '3010283',
-      nombre: 'Construcción II',
-      creditos: 3,
-      planEstudios: ['3501 ARQUITECTURA', '3503 CONSTRUCCIÓN'],
-      tipologia: 'DISCIPLINAR OPTATIVA',
-      facultad: '3064 FACULTAD DE ARQUITECTURA',
-      grupos: [
-        Grupo(
-          nombreProfesor: 'Edison Aldemar Hincapie Atehortua.',
-          numGrupo: '(1) Grupo 1',
-          cupos: 2,
-          horarios: [
-            Horario(hora: 'MARTES de 10:00 a 12:00.', aula: 'AULA DE DIBUJO. 24-203. BLOQUE 24. SALON.'),
-            Horario(hora: 'JUEVES de 10:00 a 12:00.', aula: 'AULA ESPECIAL. 24-406. BLOQUE 24. SALON.'),
-          ],
-        ),
-      ],
-    ),
-    Asignatura(
-      id: '3006719',
-      nombre: 'Construcción III',
-      creditos: 3,
-      planEstudios: ['3501 ARQUITECTURA', '3503 CONSTRUCCIÓN'],
-      tipologia: 'DISCIPLINAR OPTATIVA',
-      facultad: '3064 FACULTAD DE ARQUITECTURA',
-      grupos: [
-        Grupo(
-          nombreProfesor: 'John Jairo Agudelo .',
-          numGrupo: '(1) Grupo 1',
-          cupos: 2,
-          horarios: [
-            Horario(hora: 'MIÉRCOLES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-403. BLOQUE 24. SALON.'),
-            Horario(hora: 'VIERNES de 06:00 a 08:00.', aula: 'AULA ESPECIAL. 24-403. BLOQUE 24. SALON.'),
-          ],
-        ),
-      ],
-    ),
-  ];
-  
+  List<Asignatura> _availableSubjects = [];
+  List<Asignatura> _filteredSubjects = []; // Asignaturas filtradas
+  List<String> _facultades = [];
+  List<String> _planesEstudios = [];
+  List<String> _tipologias = [];
+
+  // Variables para almacenar los valores seleccionados en los dropdowns
+  String? _selectedFacultad;
+  String? _selectedPlanEstudios;
+  String? _selectedTipologia;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final asignaturas = await loadAsignaturas();
+    setState(() {
+      _availableSubjects = asignaturas;
+      _filteredSubjects = asignaturas; // Inicialmente, todas las asignaturas están visibles
+      _facultades = _getUniqueFacultades(asignaturas);
+      _planesEstudios = _getUniquePlanesEstudios(asignaturas);
+      _tipologias = _getUniqueTipologias(asignaturas);
+    });
+  }
+
+  // Método para cargar el JSON
+  Future<List<Asignatura>> loadAsignaturas() async {
+    String jsonString = await rootBundle.loadString('assets/tu_base_de_datos.json');
+    final jsonResponse = json.decode(jsonString);
+    return (jsonResponse as List).map((i) => Asignatura.fromJson(i)).toList();
+  }
+
+  // Métodos para obtener valores únicos
+  List<String> _getUniqueFacultades(List<Asignatura> asignaturas) {
+    return asignaturas.map((asignatura) => asignatura.facultad).toSet().toList();
+  }
+
+  List<String> _getUniquePlanesEstudios(List<Asignatura> asignaturas) {
+    return asignaturas.expand((asignatura) => asignatura.planEstudios).toSet().toList();
+  }
+
+  List<String> _getUniqueTipologias(List<Asignatura> asignaturas) {
+    return asignaturas.map((asignatura) => asignatura.tipologia).toSet().toList();
+  }
+
+  // Método para filtrar las asignaturas
+  void _filterAsignaturas() {
+    setState(() {
+      _filteredSubjects = _availableSubjects.where((asignatura) {
+        // Filtro por facultad
+        final bool matchesFacultad = _selectedFacultad == null ||
+            asignatura.facultad == _selectedFacultad;
+
+        // Filtro por plan de estudios
+        final bool matchesPlanEstudios = _selectedPlanEstudios == null ||
+            asignatura.planEstudios.contains(_selectedPlanEstudios);
+
+        // Filtro por tipología
+        final bool matchesTipologia = _selectedTipologia == null ||
+            asignatura.tipologia == _selectedTipologia;
+
+        // La asignatura debe cumplir con todos los filtros seleccionados
+        return matchesFacultad && matchesPlanEstudios && matchesTipologia;
+      }).toList();
+    });
+  }
+
   void _addSubject(Asignatura asignatura) {
     setState(() {
       if (!_selectedSubjects.any((subject) => subject.id == asignatura.id)) {
@@ -136,8 +136,8 @@ class _AsignaturasScreenState extends State<AsignaturasScreen> {
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                stops: [0.6, 0.3]
-              )
+                stops: [0.6, 0.3],
+              ),
             ),
             padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
             child: Column(
@@ -145,7 +145,7 @@ class _AsignaturasScreenState extends State<AsignaturasScreen> {
                 HeaderWidget(
                   title: "Organiza tu horario",
                   imageUrl: "https://i.pinimg.com/736x/b1/a6/1e/b1a61e29eaa57410058f1d671931f7a4.jpg",
-                  subtitle: "Animo"
+                  subtitle: "Animo",
                 ),
               ],
             ),
@@ -157,23 +157,55 @@ class _AsignaturasScreenState extends State<AsignaturasScreen> {
                 color: Color(0xFFD3AAFB),
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(30),
-                  topLeft: Radius.circular(30)
+                  topLeft: Radius.circular(30),
                 ),
               ),
               child: ListView(
                 children: [
                   SizedBox(height: 15),
-                  FilterDropdown(hint: "Seleccionar Facultad"),
+                  FilterDropdown(
+                    hint: "Seleccionar Facultad",
+                    items: _facultades,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedFacultad = value;
+                      });
+                      _filterAsignaturas();
+                    },
+                  ),
                   SizedBox(height: 10),
-                  FilterDropdown(hint: "Seleccionar Plan de Estudios"),
+                  FilterDropdown(
+                    hint: "Seleccionar Plan de Estudios",
+                    items: _planesEstudios,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedPlanEstudios = value;
+                      });
+                      _filterAsignaturas();
+                    },
+                  ),
                   SizedBox(height: 10),
-                  FilterTextField(hint: "Tipología"),
+                  FilterDropdown(
+                    hint: "Tipología",
+                    items: _tipologias,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedTipologia = value;
+                      });
+                      _filterAsignaturas();
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  FilterTextField(hint: "Buscar por código o nombre"),
                   SizedBox(height: 10),
                   SearchButton(),
                   SizedBox(height: 20),
                   _buildAsignaturasTitle(),
                   SizedBox(height: 10),
-                  AsignaturasTable(asignaturas: _availableSubjects, onAdd: _addSubject),
+                  AsignaturasTable(
+                    asignaturas: _filteredSubjects,
+                    onAdd: _addSubject,
+                  ),
                   SizedBox(height: 20),
                   _buildAsignaturasSeleccionadasTitle(),
                   SizedBox(height: 10),
@@ -190,7 +222,7 @@ class _AsignaturasScreenState extends State<AsignaturasScreen> {
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -250,6 +282,71 @@ class _AsignaturasScreenState extends State<AsignaturasScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// Widgets personalizados (simplificados para el ejemplo)
+class FilterDropdown extends StatelessWidget {
+  final String hint;
+  final List<String> items;
+  final Function(String?) onChanged;
+
+  const FilterDropdown({
+    required this.hint,
+    required this.items,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<String>(
+  decoration: InputDecoration(
+    hintText: hint,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+  items: items.map((String value) {
+    return DropdownMenuItem<String>(
+      value: value,
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.8, // 80% del ancho de la pantalla
+        child: Text(value),
+      ),
+    );
+  }).toList(),
+  onChanged: onChanged,
+);
+  }
+}
+
+class FilterTextField extends StatelessWidget {
+  final String hint;
+
+  const FilterTextField({required this.hint});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      decoration: InputDecoration(
+        hintText: hint,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+}
+
+class SearchButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        // Lógica de búsqueda
+      },
+      child: Text("Buscar"),
     );
   }
 }

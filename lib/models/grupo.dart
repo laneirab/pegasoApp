@@ -1,10 +1,10 @@
 import 'horario.dart';
 
 class Grupo {
-  final String nombreProfesor;
-  final String numGrupo;
-  final int cupos;
-  final List<Horario> horarios;
+  String nombreProfesor;
+  String numGrupo;
+  int cupos;
+  List<Horario> horarios;
 
   Grupo({
     required this.nombreProfesor,
@@ -14,14 +14,11 @@ class Grupo {
   });
 
   factory Grupo.fromJson(Map<String, dynamic> json) {
-    var list = json['horarios'] as List;
-    List<Horario> horariosList = list.map((i) => Horario.fromJson(i)).toList();
-
     return Grupo(
       nombreProfesor: json['nombreProfesor'],
       numGrupo: json['numGrupo'],
       cupos: json['cupos'],
-      horarios: horariosList,
+      horarios: List<Horario>.from(json['horarios'].map((x) => Horario.fromJson(x))),
     );
   }
 }
